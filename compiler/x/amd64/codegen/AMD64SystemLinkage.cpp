@@ -874,6 +874,7 @@ TR::Register *TR_AMD64SystemLinkage::buildDirectDispatch(
 #endif
 
    TR::Instruction *instr;
+   /*
    if (methodSymbol->getMethodAddress())
       {
       TR_ASSERT(scratchReg, "could not find second scratch register");
@@ -890,6 +891,9 @@ TR::Register *TR_AMD64SystemLinkage::buildDirectDispatch(
       {
       instr = generateImmSymInstruction(CALLImm4, callNode, (uintptrj_t)methodSymbol->getMethodAddress(), methodSymRef, preDeps, cg());
       }
+   */
+   instr = generateImmSymInstruction(CALLImm4, callNode, (uintptrj_t)methodSymbol->getMethodAddress(), methodSymRef, preDeps, cg());
+   printf ("Direct call!!");
 
    instr->setNeedsGCMap(getProperties().getPreservedRegisterMapForGC());
 
