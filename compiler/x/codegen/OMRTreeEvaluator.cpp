@@ -2452,12 +2452,16 @@ TR::Register *OMR::X86::TreeEvaluator::OverflowCHKEvaluator(TR::Node *node, TR::
       //add group
       case TR::ladd:
       case TR::iadd:
+      case TR::iuadd:
+      case TR::luadd:
          op = ADDRegReg(nodeIs64Bit);
          break;
       case TR::sadd:
+      case TR::cadd:
          op = ADD2RegReg;
          break;
       case TR::badd:
+      case TR::buadd:
          op = ADD1RegReg;
          break;
       //sub group
@@ -2523,9 +2527,13 @@ TR::Register *OMR::X86::TreeEvaluator::OverflowCHKEvaluator(TR::Node *node, TR::
          case TR::badd:
          case TR::sadd:
          case TR::iadd:
+	 case TR::buadd:
+	 case TR::cadd:
+	 case TR::iuadd:
             addMulAnalyser.integerAddAnalyserWithExplicitOperands(node, operand1, operand2, op, BADIA32Op, needsEflags);
             break;
          case TR::ladd:
+	 case TR::luadd:
             TR::Compiler->target.is32Bit() ? addMulAnalyser.longAddAnalyserWithExplicitOperands(node, operand1, operand2) 
                                            : addMulAnalyser.integerAddAnalyserWithExplicitOperands(node, operand1, operand2, op, BADIA32Op, needsEflags);
             break;
@@ -2560,8 +2568,9 @@ TR::Register *OMR::X86::TreeEvaluator::OverflowCHKEvaluator(TR::Node *node, TR::
       TR::LabelSymbol *label = generateLabelSymbol(cg);
       bbstartNode->setLabel(label);
       }
-
-   generateLabelInstruction(JO4, node, overflowCatchBlock->getEntry()->getNode()->getLabel(), cg);
+   
+   TR_X86OpCodes opcode = node->getOpCode().isUnsigned()? JB4: JO4; 
+   generateLabelInstruction(opcode, node, overflowCatchBlock->getEntry()->getNode()->getLabel(), cg);
    cg->setVMThreadRequired(false);
    cg->decReferenceCount(operationNode);
    return NULL;

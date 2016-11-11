@@ -974,7 +974,7 @@ TR::Register *OMR::X86::TreeEvaluator::baddEvaluator(TR::Node *node, TR::CodeGen
 
    if (NEED_CC(node))
       {
-      TR_ASSERT(node->getOpCodeValue() == TR::badd,
+      TR_ASSERT(node->getOpCodeValue() == TR::badd | TR::buadd,
                 "CC computation not supported for this node %p with opcode %s\n", node, cg->comp()->getDebug()->getName(node->getOpCode()));
 
       // we need eflags from integerAddAnalyser for the CC sequence
@@ -1223,6 +1223,16 @@ TR::Register *OMR::X86::TreeEvaluator::caddEvaluator(TR::Node *node, TR::CodeGen
    TR::MemoryReference *tempMR              = NULL;
    bool                 oursIsTheOnlyMemRef = true;
    TR::Compilation     *comp                = cg->comp();
+   
+   if (NEED_CC(node))
+      {    
+      TR_ASSERT(node->getOpCodeValue() == TR::cadd,
+                "CC computation not supported for this node %p with opcode %s\n", node, cg->comp()->getDebug()->getName(node->getOpCode()));
+
+      TR_X86BinaryCommutativeAnalyser  temp(cg);
+      temp.integerAddAnalyser(node, ADD4RegReg, ADD2RegMem);
+      return node->getRegister();
+      }    
 
    TR_ASSERT(TR::Compiler->target.is32Bit(), "AMD64 baddEvaluator not yet supported");
 
